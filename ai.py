@@ -22,20 +22,23 @@ counter = 0
 for i in response:
     text += i
     if counter > 3:
-        os.system("clear")
+        os.system("cls")
         print(text)
         counter = 0
     counter += 1
 
-os.system("clear")
+os.system("cls")
 print(text)
 
 def ai_message(user_message, bot: TeleBot, messages_list):
-    try :
-        user_messages = messages_list[str(user_message.chat.id)]
-    except:
-        messages_list[str(user_message.chat.id)] = []
-        user_messages = messages_list[str(user_message.chat.id)]
+    try:
+        messages_list[str(user_message.chat.id)].append({"role" : "user", "content" : user_message.text})
+    except Exception as e:
+        print(e)
+        messages_list[str(user_message.chat.id)] = [{"role" : "user", "content" : user_message.text}]
+    user_messages = messages_list[str(user_message.chat.id)]
+    
+    print(user_messages)
     
     if len(user_messages) >= 1:
         response = g4f.ChatCompletion.create(
@@ -60,6 +63,8 @@ def ai_message(user_message, bot: TeleBot, messages_list):
                 counter = 0
             counter += 1
         try:
+            messages_list[str(user_message.chat.id)].append({"role" : "assistant", "content" : text})
             bot.edit_message_text(text, bot_message.chat.id, bot_message.id)
         except Exception as err:
             print(err)
+        return 
