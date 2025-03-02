@@ -15,8 +15,8 @@ response = g4f.ChatCompletion.create(
     # api_key="AIzaSyB_wYlmOsTD9b2U84tdRgH9AD1nToHu_vg",
     cookies={
         "__Secure-1PSID" : "g.a000uAjUAPGE2J6ekF4LhheHgMDw5GYKcCDVAwXpUuPwNxhTtnOSKNjcq94JDydHwEv_6944DwACgYKAQ4SARcSFQHGX2Mi8HhBsDLzBOqq2SpNhqNE5BoVAUF8yKrQhP7gITbDFCO7DgnbQa9n0076",
-        "__Secure-1PSIDTS" : "sidts-CjEBEJ3XVzFUPJvJ2tVPJI0vq0f93Pi0RzyEtQK4tB4A4vUntGyXNPswjiIUxm1GLqjQEAA",
-        "__Secure-1PSIDCC" : "AKEyXzXCg77ACIuB3DGQPD9akIWRsu4iVY6rxQUvSidOPVgQjkCsR1ukaEdNxQ9W4JwfihaMmrIi"
+        "__Secure-1PSIDTS" : "sidts-CjEBEJ3XV8beZsXsM2Yzbm6eBmhVKWLg399RQZOnmXiPGrk2P9QdLokC7o2p7D3Wfp5WEAA",
+        "__Secure-1PSIDCC" : "AKEyXzUCYndLrCFV_dXwNLz5eor8_eapJzlNVs69yAry8RqWe2kk896u7t7PmLburJMNl6R1z_WO"
     },
     # _sid="g.a000uAjUAPGE2J6ekF4LhheHgMDw5GYKcCDVAwXpUuPwNxhTtnOS95kMQAM2DzsE63sq3Nm3SwACgYKAXQSARcSFQHGX2MiH84kSHOAP7T6sqVswr13RxoVAUF8yKpCfVVMPq-B9BgjbLGRbPdc0076"
 )
@@ -53,7 +53,7 @@ def ai_message(user_message, bot: TeleBot, messages_list1):
             model=g4f.models.gemini_2_0_flash_thinking,
             provider=g4f.Provider.Gemini,
             messages=[
-                {"role" : "system", "content" : "You are not an AI and not an assistant, you are dansk teacher for ukrainian students with danish level B1-B2!"},
+                {"role" : "system", "content" : "You are not an AI and not an assistant, you are dansk teacher for ukrainian students with danish level B1-B2 (You can translate sometimes to ukrainian if necessery)!"},
             ] + user_messages,
             # stream=True
             cookies={
@@ -68,7 +68,8 @@ def ai_message(user_message, bot: TeleBot, messages_list1):
 
         bot_message = bot.send_message(user_message.chat.id, "...")
         for i in response.split("\n\n\n\n\n\n")[1]:
-            text += i
+            if i != "*":
+                text += i
             if counter > 100:
                 try:
                     bot.edit_message_text(text, bot_message.chat.id, bot_message.id)
