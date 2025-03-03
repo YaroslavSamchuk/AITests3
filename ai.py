@@ -27,17 +27,17 @@ counter = 0
 for i in response.split("\n\n\n\n\n\n")[1]:
     text += i
     if counter > 3:
-        os.system("cls")
+        os.system("clear")
         print(text)
         counter = 0
     counter += 1
 
-os.system("cls")
+os.system("clear")
 print(text)
 
 messages_list = {}
 
-def ai_message(user_message, bot: TeleBot, messages_list1):
+def ai_message(user_message, bot: TeleBot):
 
     try:
         messages_list[str(user_message.chat.id)].append({"role" : "user", "content" : user_message.text})
@@ -53,7 +53,7 @@ def ai_message(user_message, bot: TeleBot, messages_list1):
             model=g4f.models.gemini_2_0_flash_thinking,
             provider=g4f.Provider.Gemini,
             messages=[
-                {"role" : "system", "content" : "You are not an AI and not an assistant, you are dansk teacher for ukrainian students with danish level B1-B2 (You can translate sometimes to ukrainian if necessery)!"},
+                {"role" : "system", "content" : "You are not an AI and not an assistant, you are dansk teacher for ukrainian students with danish level B1-B2 (You can translate words sometimes to ukrainian if necessery, when you should explore something)!"},
             ] + user_messages,
             # stream=True
             cookies={
@@ -65,22 +65,33 @@ def ai_message(user_message, bot: TeleBot, messages_list1):
 
         text = ""
         counter = 0
-
-        bot_message = bot.send_message(user_message.chat.id, "...")
+        message_for_translate = ""
+        bot_message = bot.send_message(user_message.chat.id, "[...](https://t.me/YaroTest1_bot?start)", parse_mode="Markdown", disable_web_page_preview=True)
         for i in response.split("\n\n\n\n\n\n")[1]:
             if i != "*":
-                text += i
+                if i.isalpha() == True and message_for_translate == "":
+                    # text += "["
+                    # text += i
+                    message_for_translate += i
+                elif i.isalpha() == False and message_for_translate != "":
+                    text += f"[{message_for_translate}](https://t.me/YaroTest1_bot?start={message_for_translate}_translate)"
+                    text += i
+                    message_for_translate = ""
+                elif i.isalpha() == True and message_for_translate != "":
+                    # text += i
+                    message_for_translate += i
             if counter > 100:
                 try:
-                    bot.edit_message_text(text, bot_message.chat.id, bot_message.id)
+                    bot.edit_message_text(text, bot_message.chat.id, bot_message.id, parse_mode="Markdown", disable_web_page_preview=True)
                 except:
                     time.sleep(1)
-                    bot.edit_message_text(text, bot_message.chat.id, bot_message.id)
+                    # bot.edit_message_text(text, bot_message.chat.id, bot_message.id, parse_mode="Markdown", disable_web_page_preview=True)
                 counter = 0
             counter += 1
         try:
             messages_list[str(user_message.chat.id)].append({"role" : "assistant", "content" : text})
-            bot.edit_message_text(text, bot_message.chat.id, bot_message.id)
+            bot.edit_message_text(text, bot_message.chat.id, bot_message.id, parse_mode="Markdown", disable_web_page_preview=True)
+            print(text)
         except Exception as err:
             print(err)
         return messages_list
